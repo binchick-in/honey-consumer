@@ -1,2 +1,5 @@
 **venv/
 **database.db
+**__pycache__/
+**start.sh
+svc-honey-consumer.json
