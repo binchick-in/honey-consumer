@@ -1,0 +1,12 @@
+[project]
+name = "honey-consumer"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "google-cloud-pubsub>=2.30.0",
+    "httpx>=0.28.1",
+    "python-dotenv[cli]>=1.1.0",
+    "sqlmodel>=0.0.24",
+]

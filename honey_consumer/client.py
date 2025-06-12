@@ -6,12 +6,15 @@ from sqlmodel import SQLModel
 
 from google.cloud import pubsub_v1
 
-from honey_consumer.exceptions import NoCredsFound
 from honey_consumer.models import Honey
 from honey_consumer.database_client import DatabaseClient
 
 
 database = DatabaseClient()
+
+
+class NoCredsFound(Exception):
+    ...
 
 
 class HoneyClient():

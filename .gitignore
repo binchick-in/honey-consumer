@@ -3,3 +3,5 @@
 **__pycache__/
 **start.sh
 svc-honey-consumer.json
+.env
+honey.db

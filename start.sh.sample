@@ -1,9 +1,0 @@
-#!/bin/bash
-
-export DATABASE_HOST="HOST NAME"
-export DATABASE_USER="DATABASE USERNAME"
-export DATABASE_PASSWORD="DATABASE PASSWORD"
-export DATABASE_NAME="DATABASE NAME"
-export GOOGLE_SERVICE_JSON=`cat svc-honey-consumer.json`  # Service account json for PubSub
-
-python3.9 main.py
