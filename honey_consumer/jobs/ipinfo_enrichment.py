@@ -16,11 +16,11 @@ from honey_consumer.models import IpInfo
 IPINFO_KEY = os.environ["IPINFO_KEY"]
 log = logging.getLogger("honey-consumer.ipinfo_enrichment")
 
+
 async def fetch_ip_info(ip_address: str) -> httpx.Response:
     async with httpx.AsyncClient() as client:
         response = await client.get(
-            f"https://api.ipinfo.io/lite/{ip_address}",
-            params={"token": IPINFO_KEY}
+            f"https://api.ipinfo.io/lite/{ip_address}", params={"token": IPINFO_KEY}
         )
         response.raise_for_status()
         return response

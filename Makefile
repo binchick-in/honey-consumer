@@ -5,9 +5,11 @@ SERVICE_NAME=honey-consumer
 ip_enrich:
 	@dotenv run -- python -m honey_consumer.jobs.ipinfo_enrichment
 
-
 run:
 	@dotenv run -- python -m honey_consumer
+
+show-schema:
+	@sqlite3 honey.db .schema
 
 # TODO: Update dockerfile to work with UV
 # build:

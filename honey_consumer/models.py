@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from typing import Optional
 from typing import Any
 import datetime
@@ -5,6 +7,9 @@ import json
 
 from sqlmodel import SQLModel
 from sqlmodel import Field
+from sqlmodel import Relationship
+from sqlalchemy.orm import Mapped
+
 
 from sqlalchemy import Column
 from sqlalchemy import TEXT
@@ -26,7 +31,7 @@ class Honey(SQLModel, table=True):
 
     def to_json(self) -> str:
         return json.dumps(self.__dict__)
-    
+
     def to_llm_context(self) -> str:
         return f"""Method: {self.method}
 Path: {self.path}
@@ -34,6 +39,26 @@ User-Agent: {self.user_agent}
 Query Parameters: {self.query_params}
 Header: {self.headers}
 Body: {self.body}"""
+
+
+class LLMDetails(SQLModel, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True)
+    honey_id: int = Field(foreign_key="honey.id")
+    malicious: str | None = Field(default=None, nullable=True)
+    type_of_exploit: str | None = Field(default=None, nullable=True)
+    target_software: str | None = Field(default=None, nullable=True)
+
+    def to_json(self) -> str:
+        return json.dumps(self.__dict__)
+
+    @classmethod
+    def from_json_dict(cls, *, honey_id: id, data: dict[str, Any]) -> LLMDetails:
+        return cls(
+            honey_id=honey_id,
+            malicious=data.get("malicious"),
+            type_of_exploit=data.get("type_of_exploit"),
+            target_software=data.get("target_software"),
+        )
 
 
 class IpInfo(SQLModel, table=True):
@@ -50,10 +75,11 @@ class IpInfo(SQLModel, table=True):
 
     def to_json(self) -> str:
         import json
+
         return json.dumps(self.__dict__)
 
     @classmethod
-    def from_json_dict(cls, data: dict[str, Any]) -> "IpInfo":
+    def from_json_dict(cls, data: dict[str, Any]) -> IpInfo:
         return cls(
             ip_address=data.get("ip_address"),
             asn=data.get("asn"),
