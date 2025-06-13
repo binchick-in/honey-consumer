@@ -14,7 +14,7 @@ from honey_consumer.models import IpInfo
 
 
 IPINFO_KEY = os.environ["IPINFO_KEY"]
-logger = logging.getLogger(__name__)
+logger = logging.getLogger("honey_consumer.jobs.ipinfo_enrichment")
 
 
 async def fetch_ip_info(ip_address: str) -> httpx.Response:

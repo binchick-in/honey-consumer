@@ -1,9 +1,10 @@
-
-
 SERVICE_NAME=honey-consumer
 
 ip_enrich:
 	@dotenv run -- python -m honey_consumer.jobs.ipinfo_enrichment
+
+llm_enrichment:
+	@dotenv run -- python -m honey_consumer.jobs.llm_enrichment
 
 run:
 	@dotenv run -- python -m honey_consumer

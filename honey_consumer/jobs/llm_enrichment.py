@@ -19,7 +19,7 @@ from honey_consumer.models import Honey
 from honey_consumer.models import LLMDetails
 
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger("honey_consumer.jobs.llm_enrichement")
 
 SYSTEM_PROMPT = """
 You are a security analyst classifying HTTP requests captured by a honeypot. Analyze the provided request data and return a JSON classification.
