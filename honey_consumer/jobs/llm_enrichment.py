@@ -1,5 +1,5 @@
 import asyncio
-
+import logging
 import json
 
 from sqlmodel import SQLModel
@@ -17,6 +17,9 @@ from pydantic import field_validator
 from honey_consumer.database_client import DatabaseClient
 from honey_consumer.models import Honey
 from honey_consumer.models import LLMDetails
+
+
+logger = logging.getLogger(__name__)
 
 SYSTEM_PROMPT = """
 You are a security analyst classifying HTTP requests captured by a honeypot. Analyze the provided request data and return a JSON classification.
@@ -108,18 +111,24 @@ async def main():
             .where(LLMDetails.malicious.is_(None))
         )
         unenriched_honey = sess.exec(statement).all()
-        print(f"Found {len(unenriched_honey)} honey records without LLM enrichment...")
+        logger.info(
+            "Found %d honey records without LLM enrichment...", len(unenriched_honey)
+        )
         for h in unenriched_honey:
-            print(f"Looking up id: {h.id}")
-            llm_response = await run_llm_inference(h.to_llm_context())
-            print("****")
-            print(llm_response)
-            print("****")
-            new_llm_details = LLMDetails.from_json_dict(
-                honey_id=h.id, data=llm_response
-            )
-            sess.add(new_llm_details)
-            sess.commit()
+            logger.info("Looking up id: %s", h.id)
+            try:
+                llm_response = await run_llm_inference(h.to_llm_context())
+                logger.debug("LLM response for id %s: %s", h.id, llm_response)
+                new_llm_details = LLMDetails.from_json_dict(
+                    honey_id=h.id, data=llm_response
+                )
+                sess.add(new_llm_details)
+                sess.commit()
+                logger.info("Successfully enriched honey record id: %s", h.id)
+            except Exception as e:
+                logger.error(
+                    "Failed to enrich honey record id %s: %s", h.id, e, exc_info=True
+                )
 
 
 if __name__ == "__main__":

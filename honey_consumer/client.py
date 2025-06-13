@@ -1,6 +1,7 @@
 import os
 import json
 import datetime
+import logging
 
 from sqlmodel import SQLModel
 
@@ -10,6 +11,7 @@ from honey_consumer.models import Honey
 from honey_consumer.database_client import DatabaseClient
 
 
+logger = logging.getLogger(__name__)
 database = DatabaseClient()
 
 
@@ -34,9 +36,9 @@ class HoneyClient:
         )
 
     def process_task(self, task):
-        print(task)
-        print(task.data)
-        print(task.attributes)
+        logger.debug("Received task: %s", task)
+        logger.info("Task data: %s", task.data)
+        logger.debug("Task attributes: %s", task.attributes)
         deserialized_task = json.loads(task.data.decode())
         honey = Honey(**deserialized_task)
         honey.created = datetime.datetime.today()
@@ -47,11 +49,11 @@ class HoneyClient:
         task.ack()
 
     def listen(self):
-        print("Starting Honey Consumer...")
+        logger.info("Starting Honey Consumer...")
         SQLModel.metadata.create_all(database.database_engine)
         with self._subscriber_client as subscriber:
             stream = subscriber.subscribe(self._subscription_name, self.process_task)
             try:
-                print(stream.result(), "<--")
+                logger.info("Subscriber stream result: %s", stream.result())
             except KeyboardInterrupt:
                 stream.cancel()

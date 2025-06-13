@@ -14,7 +14,7 @@ from honey_consumer.models import IpInfo
 
 
 IPINFO_KEY = os.environ["IPINFO_KEY"]
-log = logging.getLogger("honey-consumer.ipinfo_enrichment")
+logger = logging.getLogger(__name__)
 
 
 async def fetch_ip_info(ip_address: str) -> httpx.Response:
@@ -38,13 +38,23 @@ async def main():
         )
         unenriched_ips: list[str] = sess.exec(statement).all()
 
+        logger.info("Found %d unenriched IPs", len(unenriched_ips))
         for honey_ip_address in unenriched_ips:
-            ipinfo_resp = await fetch_ip_info(honey_ip_address)
-            ipinfo_data = ipinfo_resp.json()
-            ipinfo_data["ip_address"] = honey_ip_address
-            new_ipinfo = IpInfo.from_json_dict(ipinfo_data)
-            sess.add(new_ipinfo)
-            sess.commit()
+            try:
+                logger.info("Enriching IP: %s", honey_ip_address)
+                ipinfo_resp = await fetch_ip_info(honey_ip_address)
+                ipinfo_data = ipinfo_resp.json()
+                ipinfo_data["ip_address"] = honey_ip_address
+                new_ipinfo = IpInfo.from_json_dict(ipinfo_data)
+                sess.add(new_ipinfo)
+                sess.commit()
+                logger.info(
+                    "Successfully enriched and committed IP: %s", honey_ip_address
+                )
+            except Exception as e:
+                logger.error(
+                    "Failed to enrich IP %s: %s", honey_ip_address, e, exc_info=True
+                )
 
 
 if __name__ == "__main__":
